@@ -32,12 +32,13 @@ public class SmtpServerInitializer extends ChannelInitializer<SocketChannel> {
     private static final StringDecoder DECODER = new StringDecoder();
     private static final StringEncoder ENCODER = new StringEncoder();
 
-    private static final SmtpServerHandler SERVER_HANDLER = new SmtpServerHandler();
-
     private final SslContext sslCtx;
+    
+    private final MessageHandler messageHandler;
 
-    public SmtpServerInitializer(SslContext sslCtx) {
+    public SmtpServerInitializer(SslContext sslCtx,MessageHandler messageHandler) {
         this.sslCtx = sslCtx;
+        this.messageHandler = messageHandler;
     }
 
     @Override
@@ -55,6 +56,6 @@ public class SmtpServerInitializer extends ChannelInitializer<SocketChannel> {
         pipeline.addLast(ENCODER);
 
         // and then business logic.
-        pipeline.addLast(SERVER_HANDLER);
+        pipeline.addLast(new SmtpServerHandler(messageHandler));
     }
 }

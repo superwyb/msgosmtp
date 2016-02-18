@@ -50,7 +50,7 @@ public final class SmtpServer {
             b.group(bossGroup, workerGroup)
              .channel(NioServerSocketChannel.class)
              .handler(new LoggingHandler(LogLevel.INFO))
-             .childHandler(new SmtpServerInitializer(sslCtx));
+             .childHandler(new SmtpServerInitializer(sslCtx,new DummyMessageHandler()));
 
             b.bind(PORT).sync().channel().closeFuture().sync();
         } finally {

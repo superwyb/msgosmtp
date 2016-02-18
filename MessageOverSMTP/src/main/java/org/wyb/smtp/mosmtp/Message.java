@@ -5,7 +5,7 @@ import java.util.Date;
 public class Message {
 	private String messageId;
 	private Date time;
-	private String symbol;
+	private String subject;
 	private String content;
 	public String getMessageId() {
 		return messageId;
@@ -19,11 +19,11 @@ public class Message {
 	public void setTime(Date time) {
 		this.time = time;
 	}
-	public String getSymbol() {
-		return symbol;
+	public String getSubject() {
+		return subject;
 	}
-	public void setSymbol(String symbol) {
-		this.symbol = symbol;
+	public void setSubject(String subject) {
+		this.subject = subject;
 	}
 	public String getContent() {
 		return content;

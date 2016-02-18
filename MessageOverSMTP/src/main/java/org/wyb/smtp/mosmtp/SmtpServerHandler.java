@@ -30,12 +30,18 @@ import io.netty.channel.SimpleChannelInboundHandler;
  */
 @Sharable
 public class SmtpServerHandler extends SimpleChannelInboundHandler<String> {
+	
+	private final MessageHandler messageHandler;
 
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
 		// Send greeting for a new connection.
 		ctx.write("220 " + InetAddress.getLocalHost().getHostName() + " at your service.\r\n");
 		ctx.flush();
+	}
+	
+	public SmtpServerHandler(MessageHandler messageHandler){
+		this.messageHandler = messageHandler;
 	}
 
 	private StringBuffer messageBody;
@@ -51,15 +57,16 @@ public class SmtpServerHandler extends SimpleChannelInboundHandler<String> {
 		boolean close = false;
 		if (isMessageBody) {
 			if(".".equals(request)){
-				message.setSymbol(new String(Base64.getDecoder().decode(message.getSymbol()),"UTF-8"));
+				message.setSubject(new String(Base64.getDecoder().decode(message.getSubject()),"UTF-8"));
 				message.setContent(new String(Base64.getDecoder().decode(messageBody.toString()),"UTF-8"));
-				System.out.println(message.getSymbol());
+				System.out.println(message.getSubject());
 				System.out.println(message.getContent());
 				System.out.println(message.getMessageId());
 				System.out.println(message.getTime());
 				isMessageBody = false;
 				isContent = false;
 				response = "250 OK";
+				this.messageHandler.handle(message);
 			}else{
 				if(isContent){
 					if(!request.isEmpty())messageBody.append(request);
@@ -70,7 +77,7 @@ public class SmtpServerHandler extends SimpleChannelInboundHandler<String> {
 						final SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss, Z");
 						message.setTime(sdf.parse(request.substring(6)));
 					}else if(request.startsWith("Subject: ")){
-						message.setSymbol(request.substring(9).split("\\?")[3]);
+						message.setSubject(request.substring(9).split("\\?")[3]);
 					}else if(request.isEmpty()){
 						isContent = true;
 					}
