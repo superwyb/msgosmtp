@@ -2,12 +2,15 @@ package org.wyb.trade.dao;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.wyb.trade.model.Tick;
 
@@ -20,6 +23,8 @@ public class DBTickDao implements TickDao{
 	private final String username;
 	private final String password;
 	private final String driver;
+	private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	private final Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 	public DBTickDao(String driver,String url, String username, String password){
 		this.url = url;
 		this.username = username;
@@ -53,7 +58,7 @@ public class DBTickDao implements TickDao{
 			Timestamp tickTimestamp = new Timestamp(ts);
 			
 			insertStat.setString(1, SYMBOL_LIST[i]);
-			insertStat.setDate(2, tickDate);
+			insertStat.setString(2, sdf.format(tickDate));
 			insertStat.setTimestamp(3, tickTimestamp);
 
 			insertStat.setBigDecimal(4, BigDecimal.ZERO);
@@ -62,7 +67,7 @@ public class DBTickDao implements TickDao{
 			insertStat.setInt(7, 0);
 			insertStat.setInt(8, 0);
 			
-			insertStat.setDate(9, tickDate);
+			insertStat.setString(9, sdf.format(tickDate));
 			insertStat.setTimestamp(10, tickTimestamp);
 			insertStat.setBigDecimal(11, BigDecimal.ZERO);
 			insertStat.setBigDecimal(12, BigDecimal.ZERO);
@@ -91,9 +96,10 @@ public class DBTickDao implements TickDao{
 		PreparedStatement updateStat = con.prepareStatement(UPDATE_QUERY);
 		//PreparedStatement insertStat = con.prepareStatement(INSERT_QUERY);
 		for(Tick tick:ticks){
-			
-			Date tickDate = new Date(tick.getTickTimeMsc());
-			Timestamp tickTimestamp = new Timestamp(tick.getTickTimeMsc());
+			// convert to UTC
+			Date tickDate = new Date(tick.getTickTimeMsc()-7200000);
+			// convert to UTC
+			Timestamp tickTimestamp = new Timestamp(tick.getTickTimeMsc()-7200000);
 			/*
 			insertStat.setString(1, tick.getSymbol());
 			insertStat.setDate(2, tickDate);
@@ -111,8 +117,8 @@ public class DBTickDao implements TickDao{
 			}else if("XAUUSD`".equals(tick.getSymbol())||"USOUSD`".equals(tick.getSymbol())){
 				scale = 2;
 			}
-			updateStat.setDate(1, tickDate);
-			updateStat.setTimestamp(2, tickTimestamp);
+			updateStat.setString(1, sdf.format(tickDate));
+			updateStat.setTimestamp(2, tickTimestamp,cal);
 			updateStat.setBigDecimal(3, BigDecimal.valueOf(tick.getBid()).setScale(scale,BigDecimal.ROUND_FLOOR));
 			updateStat.setBigDecimal(4, BigDecimal.valueOf(tick.getAsk()).setScale(scale,BigDecimal.ROUND_FLOOR));
 			updateStat.setBigDecimal(5, BigDecimal.valueOf(tick.getLast()).setScale(scale,BigDecimal.ROUND_FLOOR));
