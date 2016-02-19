@@ -59,10 +59,6 @@ public class SmtpServerHandler extends SimpleChannelInboundHandler<String> {
 			if(".".equals(request)){
 				message.setSubject(new String(Base64.getDecoder().decode(message.getSubject()),"UTF-8"));
 				message.setContent(new String(Base64.getDecoder().decode(messageBody.toString()),"UTF-8"));
-				System.out.println(message.getSubject());
-				System.out.println(message.getContent());
-				System.out.println(message.getMessageId());
-				System.out.println(message.getTime());
 				isMessageBody = false;
 				isContent = false;
 				response = "250 OK";
@@ -130,6 +126,5 @@ public class SmtpServerHandler extends SimpleChannelInboundHandler<String> {
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 		// TODO Auto-generated method stub
 		super.channelInactive(ctx);
-		System.err.println("close");
 	}
 }

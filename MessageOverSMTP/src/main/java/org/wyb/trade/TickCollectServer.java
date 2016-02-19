@@ -64,7 +64,7 @@ public final class TickCollectServer {
 		try {
 			ServerBootstrap b = new ServerBootstrap();
 			b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
-					.handler(new LoggingHandler(LogLevel.INFO))
+					//.handler(new LoggingHandler(LogLevel.INFO))
 					.childHandler(new SmtpServerInitializer(sslCtx, new TickMessageHandler(dao)));
 
 			b.bind(PORT).sync().channel().closeFuture().sync();
